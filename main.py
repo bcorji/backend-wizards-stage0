@@ -50,7 +50,7 @@ app.add_middleware(
 # Configuration from environment variables
 USER_EMAIL = os.getenv("USER_EMAIL", "developer@example.com")
 USER_NAME = os.getenv("USER_NAME", "Developer Name")
-USER_STACK = os.getenv("USER_STACK", "Python/FastAPI")
+USER_STACK = os.getenv("USER_STACK", "Developer/Stack")
 CAT_FACTS_API_URL = "https://catfact.ninja/fact"
 API_TIMEOUT = 10
 
