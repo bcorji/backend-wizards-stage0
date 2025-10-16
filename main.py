@@ -138,11 +138,7 @@ async def get_profile() -> Dict[str, Any]:
         
         logger.info(f"Successfully generated profile response for {USER_EMAIL}")
         
-        return JSONResponse(
-            content=response_data,
-            status_code=200,
-            media_type="application/json"
-        )
+        return response_data
         
     except HTTPException:
         # Re-raise HTTP exceptions from fetch_cat_fact
