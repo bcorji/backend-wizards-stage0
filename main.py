@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import httpx
 import logging
+import json
 from datetime import datetime, timezone
 from dotenv import load_dotenv
 import os
@@ -18,17 +19,29 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Custom JSON Response with pretty printing
+class PrettyJSONResponse(JSONResponse):
+    def render(self, content) -> bytes:
+        return json.dumps(
+            content,
+            ensure_ascii=False,
+            allow_nan=False,
+            indent=2,
+            separators=(", ", ": "),
+        ).encode("utf-8")
+
 # Initialize FastAPI app
 app = FastAPI(
     title="Backend Wizards - Stage 0",
     description="Dynamic Profile Endpoint with Cat Facts",
-    version="1.0.0"
+    version="1.0.0",
+    default_response_class=PrettyJSONResponse  # Pretty JSON by default
 )
 
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -39,19 +52,10 @@ USER_EMAIL = os.getenv("USER_EMAIL", "developer@example.com")
 USER_NAME = os.getenv("USER_NAME", "Developer Name")
 USER_STACK = os.getenv("USER_STACK", "Python/FastAPI")
 CAT_FACTS_API_URL = "https://catfact.ninja/fact"
-API_TIMEOUT = 10  # seconds
-
+API_TIMEOUT = 10
 
 async def fetch_cat_fact() -> str:
-    """
-    Fetch a random cat fact from the Cat Facts API.
-    
-    Returns:
-        str: A random cat fact
-        
-    Raises:
-        HTTPException: If the API call fails
-    """
+    """Fetch a random cat fact from the Cat Facts API."""
     try:
         async with httpx.AsyncClient(timeout=API_TIMEOUT) as client:
             logger.info(f"Fetching cat fact from {CAT_FACTS_API_URL}")
@@ -87,7 +91,6 @@ async def fetch_cat_fact() -> str:
             detail="Unable to fetch cat fact at this time"
         )
 
-
 @app.get("/")
 async def root():
     """Root endpoint with API information."""
@@ -99,7 +102,6 @@ async def root():
         }
     }
 
-
 @app.get("/health")
 async def health_check():
     """Health check endpoint."""
@@ -108,23 +110,13 @@ async def health_check():
         "timestamp": datetime.now(timezone.utc).isoformat()
     }
 
-
 @app.get("/me")
 async def get_profile() -> Dict[str, Any]:
-    """
-    Get developer profile with a dynamic cat fact.
-    
-    Returns:
-        Dict containing status, user info, timestamp, and a random cat fact
-    """
+    """Get developer profile with a dynamic cat fact."""
     try:
-        # Fetch cat fact
         cat_fact = await fetch_cat_fact()
-        
-        # Generate current UTC timestamp in ISO 8601 format
         current_timestamp = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         
-        # Build response
         response_data = {
             "status": "success",
             "user": {
@@ -137,11 +129,9 @@ async def get_profile() -> Dict[str, Any]:
         }
         
         logger.info(f"Successfully generated profile response for {USER_EMAIL}")
-        
         return response_data
         
     except HTTPException:
-        # Re-raise HTTP exceptions from fetch_cat_fact
         raise
     except Exception as e:
         logger.error(f"Unexpected error in get_profile: {e}")
@@ -149,5 +139,4 @@ async def get_profile() -> Dict[str, Any]:
             status_code=500,
             detail="An unexpected error occurred"
         )
-
 
