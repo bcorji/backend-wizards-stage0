@@ -141,6 +141,16 @@ pip install -r requirements.txt
 ```
 
 ---
+## 📚 API Documentation
+
+FastAPI provides built-in documentation:
+
+- **Swagger UI:** [http://localhost:8000/docs](http://localhost:8000/docs)
+- **ReDoc:** [http://localhost:8000/redoc](http://localhost:8000/redoc)
+
+Both interfaces allow you to interact with and test your endpoints directly.
+
+---
 
 ## 🪪 License
 
