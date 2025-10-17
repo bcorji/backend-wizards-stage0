@@ -15,7 +15,9 @@ load_dotenv()
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    filename='app.log',  # Log to a file
+    filemode='a'         # Append to the file if it exists
 )
 logger = logging.getLogger(__name__)
 
@@ -139,3 +141,17 @@ async def get_profile() -> Dict[str, Any]:
             status_code=500,
             detail="An unexpected error occurred"
         )
+
+@app.get("/logs")
+async def get_logs():
+    """Endpoint to fetch application logs."""
+    try:
+        with open('app.log', 'r') as log_file:
+            logs = log_file.read()
+        return {"logs": logs}
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Log file not found")
+    except Exception as e:
+        logger.error(f"Error retrieving logs: {e}")
+        raise HTTPException(status_code=500, detail="Unable to retrieve logs")
+        
